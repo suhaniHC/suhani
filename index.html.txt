@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আমার স্বপ্নের দোকান | My E-Commerce</title>
+    <!-- Tailwind CSS (ডিজাইনের জন্য) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- FontAwesome (আইকনের জন্য) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .suggestion-box { display: none; }
+        .search-bar:focus-within .suggestion-box { display: block; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+    <!-- নেভিগেশন বার -->
+    <nav class="bg-blue-600 text-white p-4 sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <a href="#" class="text-2xl font-bold">আমার দোকান</a>
+            
+            <!-- সার্চ ও অটো-সাজেশন বার -->
+            <div class="relative w-full md:w-1/2 search-bar">
+                <div class="flex">
+                    <input type="text" id="searchInput" oninput="showSuggestions(this.value)" placeholder="পণ্য খুঁজুন (যেমন: মোবাইল, ঘড়ি)..." class="w-full p-2 text-black rounded-l outline-none">
+                    <button class="bg-orange-500 px-4 rounded-r hover:bg-orange-600"><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+                <!-- সাজেশন বক্স -->
+                <div id="suggestionBox" class="suggestion-box absolute left-0 right-0 bg-white text-black mt-1 rounded shadow-lg max-h-60 overflow-y-auto border border-gray-200 z-50">
+                    <!-- সাজেশন জাভাস্ক্রিপ্ট দিয়ে আসবে -->
+                </div>
+            </div>
+
+            <!-- কার্ট বাটন -->
+            <button onclick="toggleCart()" class="relative bg-orange-500 hover:bg-orange-600 px-4 py-2 rounded font-bold cursor-pointer">
+                <i class="fa-solid fa-cart-shopping mr-2"></i> কার্ট 
+                <span id="cartCount" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- মূল কন্টেন্ট -->
+    <main class="container mx-auto p-4 flex flex-col lg:flex-row gap-6">
+        
+        <!-- প্রোডাক্ট সেকশন -->
+        <section class="w-full lg:w-3/4">
+            <h2 class="text-2xl font-bold mb-4 text-gray-700">আমাদের পণ্যসমূহ</h2>
+            <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <!-- প্রোডাক্ট কার্ড জাভাস্ক্রিপ্ট দিয়ে লোড হবে -->
+            </div>
+        </section>
+
+        <!-- সাইডবার: কার্ট ও চেকআউট -->
+        <aside id="cartSection" class="w-full lg:w-1/4 bg-white p-4 rounded shadow-md h-fit border border-gray-200">
+            <h3 class="text-xl font-bold mb-4 border-b pb-2"><i class="fa-solid fa-receipt mr-2 text-blue-600"></i>অর্ডার সামারি</h3>
+            <div id="cartItems" class="space-y-3 mb-4">
+                <p class="text-gray-500 text-center">কার্ট খালি আছে</p>
+            </div>
+            
+            <hr class="my-4">
+
+            <!-- ডেলিভারি লোকেশন ও কুরিয়ার খরচ -->
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">ডেলিভারি এলাকা:</label>
+                <select id="deliveryZone" onchange="updateTotal()" class="w-full p-2 border rounded bg-gray-50">
+                    <option value="60">ঢাকার ভেতরে (৬am - ২৪ ঘন্টার মধ্যে) - ৳৬০</option>
+                    <option value="150">ঢাকার বাইরে (সুন্দরবন/স্টিডফাস্ট) - ৳১৫০</option>
+                </select>
+            </div>
+
+            <div class="space-y-2 text-sm">
+                <div class="flex justify-between"><span>পণ্যের মোট দাম:</span> <span id="subTotal">৳০</span></div>
+                <div class="flex justify-between text-red-600"><span>কুরিয়ার খরচ:</span> <span id="shippingCost">৳৬০</span></div>
+                <div class="flex justify-between text-lg font-bold border-t pt-2 text-blue-600"><span>সর্বমোট বিল:</span> <span id="grandTotal">৳০</span></div>
+            </div>
+
+            <!-- পেমেন্ট অপশন -->
+            <div class="mt-4 border-t pt-4">
+                <label class="block font-semibold mb-2">পেমেন্ট পদ্ধতি:</label>
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="setPayment('bKash')" class="border p-2 rounded text-center font-bold text-xs bg-pink-100 border-pink-500 text-pink-700">বিকাশ</button>
+                    <button onclick="setPayment('Nagad')" class="border p-2 rounded text-center font-bold text-xs hover:border-orange-500">নগদ</button>
+                    <button onclick="setPayment('COD')" class="border p-2 rounded text-center font-bold text-xs hover:border-blue-500">ক্যাশ অন ডেলিভারি</button>
+                </div>
+            </div>
+
+            <!-- কাস্টমার ইনফো ফর্ম -->
+            <form id="orderForm" onsubmit="placeOrder(event)" class="mt-4 space-y-3">
+                <input type="text" id="custName" placeholder="আপনার নাম" required class="w-full p-2 border rounded text-sm">
+                <input type="tel" id="custPhone" placeholder="মোবাইল নম্বর" required class="w-full p-2 border rounded text-sm">
+                <textarea id="custAddress" placeholder="পূর্ণাঙ্গ ঠিকানা" required class="w-full p-2 border rounded text-sm h-20"></textarea>
+                <div id="txIdField" class="block">
+                    <input type="text" id="custTxID" placeholder="Transaction ID (TxID)" class="w-full p-2 border border-pink-400 bg-pink-50 rounded text-sm">
+                    <p class="text-[10px] text-pink-600 mt-1">আমাদের নম্বরে <span class="font-bold">Send Money</span> করে TxID দিন।</p>
+                </div>
+                <button type="submit" class="w-full bg-green-600 text-white py-3 rounded font-bold hover:bg-green-700 transition cursor-pointer">অর্ডার কনফার্ম করুন</button>
+            </form>
+        </aside>
+    </main>
+
+    <!-- লাইভ চ্যাট বাটন (WhatsApp Integration) -->
+    <a href="https://wa.me/8801700000000?text=হ্যালো, আমি একটি পণ্য সম্পর্কে জানতে চাই।" target="_blank" class="fixed bottom-6 right-6 bg-green-500 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl text-2xl hover:bg-green-600 transition z-50">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
+
+    <!-- জাভাস্ক্রিপ্ট লজিক ফাইল লিংক -->
+    <script src="app.js"></script>
+</body>
+</html>

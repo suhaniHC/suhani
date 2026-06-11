@@ -1,0 +1,168 @@
+// ১. ডেমো প্রোডাক্ট ডেটাবেস (পরবর্তীতে এটি Supabase ডেটাবেস থেকে অটোমেটিক আসবে)
+const products = [
+    { id: 1, title: "প্রিমিয়াম ব্লুটুথ স্পিকার", price: 1500, stock: 10, img: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500", desc: "দারুণ সাউন্ড কোয়ালিটি এবং ১০ ঘণ্টা ব্যাটারি ব্যাকআপ।", tags: ["স্পিকার", "ব্লুটুথ", "সাউন্ড", "স্পীকার"] },
+    { id: 2, title: "স্মার্ট ওয়াচ প্রো", price: 2500, stock: 5, img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500", desc: "হার্ট রেট মনিটর এবং ফুল টাচ স্ক্রিন ডিসপ্লে।", tags: ["ঘড়ি", "স্মার্ট ওয়াচ", "ঘড়ি", "watch"] },
+    { id: 3, title: "টাইপ-সি ফাস্ট চার্জার", price: 450, stock: 25, img: "https://images.unsplash.com/photo-1616422285623-13ff0162193c?w=500", desc: "২০ ওয়াট ফাস্ট চার্জিং সাপোর্টেড হাই কোয়ালিটি চার্জার।", tags: ["চার্জার", "মোবাইল চার্জার", "টাইপ সি", "charger"] }
+];
+
+let cart = [];
+let selectedPayment = 'bKash';
+
+// ২. প্রোডাক্ট গ্রিড তৈরি করা
+function displayProducts(productsToRender) {
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML = '';
+    
+    productsToRender.forEach(prod => {
+        grid.innerHTML += `
+            <div class="bg-white p-4 rounded shadow border border-gray-100 flex flex-col justify-between">
+                <img src="${prod.img}" alt="${prod.title}" class="w-full h-48 object-cover rounded mb-4">
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800">${prod.title}</h3>
+                    <p class="text-sm text-gray-500 my-1">${prod.desc}</p>
+                    <div class="text-orange-600 font-bold text-xl my-2">৳${prod.price}</div>
+                    <div class="text-xs text-gray-400 mb-3">স্টক আছে: ${prod.stock} টি</div>
+                </div>
+                
+                <!-- কাস্টমার রিভিউ স্যাম্পল -->
+                <div class="border-t border-gray-100 pt-2 mb-3">
+                    <span class="text-yellow-500 text-sm">★★★★★ <span class="text-gray-500 text-xs">(৪.৮)</span></span>
+                </div>
+
+                <button onclick="addToCart(${prod.id})" class="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 transition cursor-pointer">
+                    <i class="fa-solid fa-cart-plus mr-1"></i> কার্টে যুক্ত করুন
+                </button>
+            </div>
+        `;
+    });
+}
+
+// ৩. কাস্টম সার্চ ও অটো-সাজেশন লজিক
+function showSuggestions(query) {
+    const box = document.getElementById('suggestionBox');
+    if (!query) { box.innerHTML = ''; return; }
+
+    // কাস্টমার কী লিখছে তা ট্যাগ এবং টাইটেলের সাথে মেলানো
+    const filtered = products.filter(p => 
+        p.title.toLowerCase().includes(query.toLowerCase()) || 
+        p.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+    );
+
+    box.innerHTML = '';
+    if(filtered.length === 0) {
+        box.innerHTML = `<div class="p-2 text-gray-400 text-sm">কোনো পণ্য পাওয়া যায়নি</div>`;
+        return;
+    }
+
+    filtered.forEach(p => {
+        box.innerHTML += `
+            <div onclick="selectProduct('${p.title}')" class="p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 border-b border-gray-50 text-sm">
+                <img src="${p.img}" class="w-8 h-8 object-cover rounded">
+                <div><strong>${p.title}</strong> - ৳${p.price}</div>
+            </div>
+        `;
+    });
+}
+
+function selectProduct(title) {
+    document.getElementById('searchInput').value = title;
+    const filtered = products.filter(p => p.title === title);
+    displayProducts(filtered);
+}
+
+// ৪. কার্ট সিস্টেম
+function addToCart(id) {
+    const product = products.find(p => p.id === id);
+    const itemInCart = cart.find(item => item.id === id);
+
+    if (itemInCart) {
+        itemInCart.qty++;
+    } else {
+        cart.push({ ...product, qty: 1 });
+    }
+    updateTotal();
+}
+
+function updateCartUI() {
+    const cartItems = document.getElementById('cartItems');
+    const cartCount = document.getElementById('cartCount');
+    
+    cartCount.innerText = cart.reduce((acc, item) => acc + item.qty, 0);
+    
+    if (cart.length === 0) {
+        cartItems.innerHTML = '<p class="text-gray-500 text-center text-sm">কার্ট খালি আছে</p>';
+        return;
+    }
+
+    cartItems.innerHTML = '';
+    cart.forEach(item => {
+        cartItems.innerHTML += `
+            <div class="flex justify-between items-center bg-gray-50 p-2 rounded text-xs">
+                <div>
+                    <p class="font-bold">${item.title}</p>
+                    <p class="text-gray-500">৳${item.price} x ${item.qty}</p>
+                </div>
+                <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700 text-sm"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        `;
+    });
+}
+
+function removeFromCart(id) {
+    cart = cart.filter(item => item.id !== id);
+    updateTotal();
+}
+
+// ৫. হিসাব-নিকাশ (কুরিয়ার চার্জ এবং মোট বিল)
+function updateTotal() {
+    updateCartUI();
+    const subTotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+    const shipping = cart.length > 0 ? parseInt(document.getElementById('deliveryZone').value) : 0;
+    const grandTotal = subTotal + shipping;
+
+    document.getElementById('subTotal').innerText = `৳${subTotal}`;
+    document.getElementById('shippingCost').innerText = `৳${shipping}`;
+    document.getElementById('grandTotal').innerText = `৳${grandTotal}`;
+}
+
+// ৬. পেমেন্ট মেথড সিলেক্ট
+function setPayment(method) {
+    selectedPayment = method;
+    const txField = document.getElementById('txIdField');
+    
+    // ক্যাশ অন ডেলিভারি হলে TxID বক্স হাইড হবে
+    if (method === 'COD') {
+        txField.style.display = 'none';
+    } else {
+        txField.style.display = 'block';
+    }
+}
+
+// ৭. অর্ডার প্লেস করা (কন্ট্রোল এবং সাবমিট)
+function placeOrder(e) {
+    e.preventDefault();
+    if(cart.length === 0) { alert('আপনার কার্ট খালি!'); return; }
+
+    const orderData = {
+        name: document.getElementById('custName').value,
+        phone: document.getElementById('custPhone').value,
+        address: document.getElementById('custAddress').value,
+        payment: selectedPayment,
+        txid: document.getElementById('custTxID').value || 'N/A',
+        items: cart,
+        total: document.getElementById('grandTotal').innerText
+    };
+
+    console.log("অর্ডার ডেটা প্রস্তুত:", orderData);
+    
+    // এখানে আমরা সুপাবেস বা অন্য কোনো ফ্রি API কল দিয়ে আপনার ডাটাবেজে ডাটা পাঠাবো।
+    alert(`ধন্যবাদ ${orderData.name}! আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে।`);
+    
+    // কার্ট ক্লিয়ার করা
+    cart = [];
+    document.getElementById('orderForm').reset();
+    updateTotal();
+}
+
+// সাইট লোড হলে পণ্যগুলো দেখাবে
+window.onload = () => displayProducts(products);

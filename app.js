@@ -1,4 +1,3 @@
-// ১. আপনার Supabase এর সঠিক তথ্য ও আসল অ্যাক্সেস কী (১০০% নিখুঁত)
 const SUPABASE_URL = "https://cuyijewingnzhkcyptfb.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_Lmoh901ezA0pIc-1H3Qknw_ug0ykWUNscHhBcnI2M3pTNXh0Z0o5WUpvdyI4ZTA5ODhiMi01OTMwLTQ5MWUtOTMwNC1kMDYyZDYzNDNiYTMi";
 
@@ -6,7 +5,6 @@ let products = [];
 let cart = [];
 let selectedPayment = 'bKash';
 
-// ২. Supabase ডেটাবেস থেকে পণ্য নিয়ে আসার আসল ফাংশন
 async function fetchProducts() {
     try {
         const response = await fetch(`${SUPABASE_URL}/rest/v1/products?select=*`, {
@@ -28,7 +26,6 @@ async function fetchProducts() {
     }
 }
 
-// ৩. প্রোডাক্ট গ্রিড ডাইনামিকালি তৈরি করা
 function displayProducts(productsToRender) {
     const grid = document.getElementById('productGrid');
     grid.innerHTML = '';
@@ -59,7 +56,6 @@ function displayProducts(productsToRender) {
     });
 }
 
-// ৪. সার্চ ও সাজেশন লজিক
 function showSuggestions(query) {
     const box = document.getElementById('suggestionBox');
     if (!query) { box.innerHTML = ''; return; }
@@ -89,7 +85,6 @@ function selectProduct(title) {
     displayProducts(filtered);
 }
 
-// ৫. কার্ট লজিক
 function addToCart(id) {
     const product = products.find(p => p.id === id);
     if (!product) return;
@@ -154,7 +149,6 @@ function setPayment(method) {
     }
 }
 
-// ৬. অর্ডার সরাসরি Supabase-এ পাঠানো
 async function placeOrder(e) {
     e.preventDefault();
     if(cart.length === 0) { alert('আপনার কার্ট খালি!'); return; }

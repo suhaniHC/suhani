@@ -1,4 +1,4 @@
-// ১. আপনার Supabase এর সঠিক তথ্য ও অ্যাক্সেস কী
+// ১. আপনার Supabase এর সঠিক তথ্য , অ্যাক্সেস কী
 const SUPABASE_URL = "https://cuyijewingnzhkcyptfb.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_Lmoh90k1RklzUGZSMzZndkhjWUpvdyI4ZTA5ODhiMi01OTMwLTQ5MWUtOTMwNC1kMDYyZDYzNDNiYTMi";
 

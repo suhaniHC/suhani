@@ -1,34 +1,57 @@
-// ১. ডেমো প্রোডাক্ট ডেটাবেস (পরবর্তীতে এটি Supabase ডেটাবেস থেকে অটোমেটিক আসবে)
-const products = [
-    { id: 1, title: "প্রিমিয়াম ব্লুটুথ স্পিকার", price: 1500, stock: 10, img: "https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500", desc: "দারুণ সাউন্ড কোয়ালিটি এবং ১০ ঘণ্টা ব্যাটারি ব্যাকআপ।", tags: ["স্পিকার", "ব্লুটুথ", "সাউন্ড", "স্পীকার"] },
-    { id: 2, title: "স্মার্ট ওয়াচ প্রো", price: 2500, stock: 5, img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500", desc: "হার্ট রেট মনিটর এবং ফুল টাচ স্ক্রিন ডিসপ্লে।", tags: ["ঘড়ি", "স্মার্ট ওয়াচ", "ঘড়ি", "watch"] },
-    { id: 3, title: "টাইপ-সি ফাস্ট চার্জার", price: 450, stock: 25, img: "https://images.unsplash.com/photo-1616422285623-13ff0162193c?w=500", desc: "২০ ওয়াট ফাস্ট চার্জিং সাপোর্টেড হাই কোয়ালিটি চার্জার।", tags: ["চার্জার", "মোবাইল চার্জার", "টাইপ সি", "charger"] }
-];
+// ১. আপনার Supabase এর সঠিক তথ্য ও অ্যাক্সেস কী
+const SUPABASE_URL = "https://cuyijewingnzhkcyptfb.supabase.co"; 
+const SUPABASE_ANON_KEY = "sb_publishable_Lmoh90k1RklzUGZSMzZndkhjWUpvdyI4ZTA5ODhiMi01OTMwLTQ5MWUtOTMwNC1kMDYyZDYzNDNiYTMi";
 
+let products = [];
 let cart = [];
 let selectedPayment = 'bKash';
 
-// ২. প্রোডাক্ট গ্রিড তৈরি করা
+// ২. Supabase ডেটাবেস থেকে পণ্য নিয়ে আসার আসল ফাংশন
+async function fetchProducts() {
+    try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/products?select=*`, {
+            method: "GET",
+            headers: {
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+                "Content-Type": "application/json"
+            }
+        });
+        
+        if (!response.ok) throw new Error("Network response was not ok");
+        
+        products = await response.json();
+        displayProducts(products);
+    } catch (error) {
+        console.error("ডেটা লোড করতে সমস্যা হয়েছে:", error);
+        // কোনো কারণে ডেটাবেস কানেক্ট না হলে কাস্টমারকে ফাঁকা মেসেজ দেখানো
+        document.getElementById('productGrid').innerHTML = '<p class="text-gray-500 col-span-full text-center py-10">পণ্য লোড হতে সমস্যা হচ্ছে। অনুগ্রহ করে পেজটি রিফ্রেশ করুন।</p>';
+    }
+}
+
+// ৩. প্রোডাক্ট গ্রিড ডাইনামিকালি তৈরি করা
 function displayProducts(productsToRender) {
     const grid = document.getElementById('productGrid');
     grid.innerHTML = '';
     
+    if(!productsToRender || productsToRender.length === 0) {
+        grid.innerHTML = '<p class="text-gray-500 col-span-full text-center py-10">দোকানে কোনো পণ্য পাওয়া যায়নি। সুpাবেস টেবিলে পণ্য যোগ করুন।</p>';
+        return;
+    }
+
     productsToRender.forEach(prod => {
         grid.innerHTML += `
             <div class="bg-white p-4 rounded shadow border border-gray-100 flex flex-col justify-between">
-                <img src="${prod.img}" alt="${prod.title}" class="w-full h-48 object-cover rounded mb-4">
+                <img src="${prod.img || 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500'}" alt="${prod.title}" class="w-full h-48 object-cover rounded mb-4">
                 <div>
                     <h3 class="font-bold text-lg text-gray-800">${prod.title}</h3>
-                    <p class="text-sm text-gray-500 my-1">${prod.desc}</p>
+                    <p class="text-sm text-gray-500 my-1">${prod.desc || 'কোনো বিবরণ নেই।'}</p>
                     <div class="text-orange-600 font-bold text-xl my-2">৳${prod.price}</div>
-                    <div class="text-xs text-gray-400 mb-3">স্টক আছে: ${prod.stock} টি</div>
+                    <div class="text-xs text-gray-400 mb-3">স্টক আছে: ${prod.stock || 0} টি</div>
                 </div>
-                
-                <!-- কাস্টমার রিভিউ স্যাম্পল -->
                 <div class="border-t border-gray-100 pt-2 mb-3">
                     <span class="text-yellow-500 text-sm">★★★★★ <span class="text-gray-500 text-xs">(৪.৮)</span></span>
                 </div>
-
                 <button onclick="addToCart(${prod.id})" class="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 transition cursor-pointer">
                     <i class="fa-solid fa-cart-plus mr-1"></i> কার্টে যুক্ত করুন
                 </button>
@@ -37,15 +60,13 @@ function displayProducts(productsToRender) {
     });
 }
 
-// ৩. কাস্টম সার্চ ও অটো-সাজেশন লজিক
+// ৪. সার্চ ও সাজেশন লজিক
 function showSuggestions(query) {
     const box = document.getElementById('suggestionBox');
     if (!query) { box.innerHTML = ''; return; }
 
-    // কাস্টমার কী লিখছে তা ট্যাগ এবং টাইটেলের সাথে মেলানো
     const filtered = products.filter(p => 
-        p.title.toLowerCase().includes(query.toLowerCase()) || 
-        p.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+        p.title.toLowerCase().includes(query.toLowerCase())
     );
 
     box.innerHTML = '';
@@ -57,7 +78,6 @@ function showSuggestions(query) {
     filtered.forEach(p => {
         box.innerHTML += `
             <div onclick="selectProduct('${p.title}')" class="p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 border-b border-gray-50 text-sm">
-                <img src="${p.img}" class="w-8 h-8 object-cover rounded">
                 <div><strong>${p.title}</strong> - ৳${p.price}</div>
             </div>
         `;
@@ -70,7 +90,7 @@ function selectProduct(title) {
     displayProducts(filtered);
 }
 
-// ৪. কার্ট সিস্টেম
+// ৫. কার্ট লজিক
 function addToCart(id) {
     const product = products.find(p => p.id === id);
     const itemInCart = cart.find(item => item.id === id);
@@ -113,7 +133,6 @@ function removeFromCart(id) {
     updateTotal();
 }
 
-// ৫. হিসাব-নিকাশ (কুরিয়ার চার্জ এবং মোট বিল)
 function updateTotal() {
     updateCartUI();
     const subTotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
@@ -125,12 +144,9 @@ function updateTotal() {
     document.getElementById('grandTotal').innerText = `৳${grandTotal}`;
 }
 
-// ৬. পেমেন্ট মেথড সিলেক্ট
 function setPayment(method) {
     selectedPayment = method;
     const txField = document.getElementById('txIdField');
-    
-    // ক্যাশ অন ডেলিভারি হলে TxID বক্স হাইড হবে
     if (method === 'COD') {
         txField.style.display = 'none';
     } else {
@@ -138,31 +154,47 @@ function setPayment(method) {
     }
 }
 
-// ৭. অর্ডার প্লেস করা (কন্ট্রোল এবং সাবমিট)
-function placeOrder(e) {
+// ৬. অর্ডার সরাসরি Supabase-এ পাঠানো
+async function placeOrder(e) {
     e.preventDefault();
     if(cart.length === 0) { alert('আপনার কার্ট খালি!'); return; }
+
+    const itemDetails = cart.map(item => `${item.title} (পরিমাণ: ${item.qty}টি)`).join(", ");
 
     const orderData = {
         name: document.getElementById('custName').value,
         phone: document.getElementById('custPhone').value,
         address: document.getElementById('custAddress').value,
-        payment: selectedPayment,
+        payment_method: selectedPayment,
         txid: document.getElementById('custTxID').value || 'N/A',
-        items: cart,
-        total: document.getElementById('grandTotal').innerText
+        items: itemDetails,
+        total_bill: document.getElementById('grandTotal').innerText,
+        status: 'Pending'
     };
 
-    console.log("অর্ডার ডেটা প্রস্তুত:", orderData);
-    
-    // এখানে আমরা সুপাবেস বা অন্য কোনো ফ্রি API কল দিয়ে আপনার ডাটাবেজে ডাটা পাঠাবো।
-    alert(`ধন্যবাদ ${orderData.name}! আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে।`);
-    
-    // কার্ট ক্লিয়ার করা
-    cart = [];
-    document.getElementById('orderForm').reset();
-    updateTotal();
+    try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+            method: "POST",
+            headers: {
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(orderData)
+        });
+
+        if (response.ok) {
+            alert(`ধন্যবাদ ${orderData.name}! আপনার অর্ডারটি সফলভাবে গ্রহণ করা হয়েছে।`);
+            cart = [];
+            document.getElementById('orderForm').reset();
+            updateTotal();
+        } else {
+            alert("দুঃখিত, অর্ডার সম্পন্ন করা যায়নি।");
+        }
+    } catch (error) {
+        console.error("অর্ডার সমস্যা:", error);
+    }
 }
 
-// সাইট লোড হলে পণ্যগুলো দেখাবে
-window.onload = () => displayProducts(products);
+// পেজ লোড হওয়ার সাথে সাথে সুপাবেস থেকে ডেটা আনা শুরু হবে
+window.onload = () => fetchProducts();

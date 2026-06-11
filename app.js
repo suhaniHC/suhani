@@ -1,6 +1,6 @@
-// ১. আপনার Supabase এর সঠিক তথ্য ও অ্যাক্সেস কী
+// ১. আপনার Supabase এর সঠিক তথ্য ও অ্যাক্সেস কী (সংশোধিত URL সহ)
 const SUPABASE_URL = "https://cuyijewingnzhkcyptfb.supabase.co"; 
-const SUPABASE_ANON_KEY = "sb_publishable_Lmoh90k1RklzUGZSMzZndkhjWUpvdyI4ZTA5ODhiMi01OTMwLTQ5MWUtOTMwNC1kMDYyZDYzNDNiYTMi";
+const SUPABASE_ANON_KEY = "sb_publishable_Lmoh901ezA0pIc-1H3Qknw_ug0ykWUNscHhBcnI2M3pTNXh0Z0o5WUpvdyI4ZTA5ODhiMi01OTMwLTQ5MWUtOTMwNC1kMDYyZDYzNDNiYTMi";
 
 let products = [];
 let cart = [];
@@ -24,7 +24,6 @@ async function fetchProducts() {
         displayProducts(products);
     } catch (error) {
         console.error("ডেটা লোড করতে সমস্যা হয়েছে:", error);
-        // কোনো কারণে ডেটাবেস কানেক্ট না হলে কাস্টমারকে ফাঁকা মেসেজ দেখানো
         document.getElementById('productGrid').innerHTML = '<p class="text-gray-500 col-span-full text-center py-10">পণ্য লোড হতে সমস্যা হচ্ছে। অনুগ্রহ করে পেজটি রিফ্রেশ করুন।</p>';
     }
 }
@@ -35,7 +34,7 @@ function displayProducts(productsToRender) {
     grid.innerHTML = '';
     
     if(!productsToRender || productsToRender.length === 0) {
-        grid.innerHTML = '<p class="text-gray-500 col-span-full text-center py-10">দোকানে কোনো পণ্য পাওয়া যায়নি। সুpাবেস টেবিলে পণ্য যোগ করুন।</p>';
+        grid.innerHTML = '<p class="text-gray-500 col-span-full text-center py-10">দোকানে কোনো পণ্য পাওয়া যায়নি। সুপাবেস টেবিলে পণ্য যোগ করুন।</p>';
         return;
     }
 

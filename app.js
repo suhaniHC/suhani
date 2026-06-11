@@ -1,8 +1,6 @@
-// ১. আপনার Supabase এর সঠিক তথ্য ও আসল অ্যাক্সেস কী
+// ১. আপনার Supabase এর সঠিক তথ্য ও আসল অ্যাক্সেস কী (১০০% নিখুঁত)
 const SUPABASE_URL = "https://cuyijewingnzhkcyptfb.supabase.co"; 
-const SUPABASE_ANON_KEY = "sb_publishable_Lmoh901ezA0pIc-1H3Qknw_ug0ykWUNscHhBcnI2M3pTNXh0Z0o5WUpvdyI4ZTA presidential_token_bypass_05930-491et-9304-d062d6343ba3"; 
-// দ্রষ্টব্য: আপনার স্ক্রিনশট mk_2 থেকে প্রাপ্ত আসল কী হুবহু নিচে ব্যবহার করা হলো
-const REAL_KEY = "sb_publishable_Lmoh901ezA0pIc-1H3Qknw_ug0ykWUNscHhBcnI2M3pTNXh0Z0o5WUpvdyI4ZTA5ODhiMi01OTMwLTQ5MWUtOTMwNC1kMDYyZDYzNDNiYTMi";
+const SUPABASE_ANON_KEY = "sb_publishable_Lmoh901ezA0pIc-1H3Qknw_ug0ykWUNscHhBcnI2M3pTNXh0Z0o5WUpvdyI4ZTA5ODhiMi01OTMwLTQ5MWUtOTMwNC1kMDYyZDYzNDNiYTMi";
 
 let products = [];
 let cart = [];
@@ -14,8 +12,8 @@ async function fetchProducts() {
         const response = await fetch(`${SUPABASE_URL}/rest/v1/products?select=*`, {
             method: "GET",
             headers: {
-                "apikey": REAL_KEY,
-                "Authorization": `Bearer ${REAL_KEY}`,
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
                 "Content-Type": "application/json"
             }
         });
@@ -30,7 +28,7 @@ async function fetchProducts() {
     }
 }
 
-// ৩. প্রোডাক্ট গ্রিড ডাইনামিকালি তৈরি করা (আইডি ও কলাম ট্র্যাকিং ফিক্সড)
+// ৩. প্রোডাক্ট গ্রিড ডাইনামিকালি তৈরি করা
 function displayProducts(productsToRender) {
     const grid = document.getElementById('productGrid');
     grid.innerHTML = '';
@@ -40,9 +38,7 @@ function displayProducts(productsToRender) {
         return;
     }
 
-    productsToRender.forEach((prod, index) => {
-        // যদি টেবিলে id কলাম না থাকে তবে ইনডেক্স ব্যবহার করবে সেফটি হিসেবে
-        const productId = prod.id || index; 
+    productsToRender.forEach(prod => {
         grid.innerHTML += `
             <div class="bg-white p-4 rounded shadow border border-gray-100 flex flex-col justify-between">
                 <img src="${prod.img || 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=500'}" alt="${prod.title}" class="w-full h-48 object-cover rounded mb-4">
@@ -55,7 +51,7 @@ function displayProducts(productsToRender) {
                 <div class="border-t border-gray-100 pt-2 mb-3">
                     <span class="text-yellow-500 text-sm">★★★★★ <span class="text-gray-500 text-xs">(৪.৮)</span></span>
                 </div>
-                <button onclick="addToCart(${productId})" class="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 transition cursor-pointer">
+                <button onclick="addToCart(${prod.id})" class="w-full bg-blue-600 text-white py-2 rounded font-semibold hover:bg-blue-700 transition cursor-pointer">
                     <i class="fa-solid fa-cart-plus mr-1"></i> কার্টে যুক্ত করুন
                 </button>
             </div>
@@ -94,16 +90,15 @@ function selectProduct(title) {
 }
 
 // ৫. কার্ট লজিক
-function addToCart(identifier) {
-    const product = products.find((p, index) => (p.id === identifier || index === identifier));
+function addToCart(id) {
+    const product = products.find(p => p.id === id);
     if (!product) return;
-    
-    const itemInCart = cart.find((item, index) => (item.id === identifier || index === identifier));
+    const itemInCart = cart.find(item => item.id === id);
 
     if (itemInCart) {
         itemInCart.qty++;
     } else {
-        cart.push({ ...product, qty: 1, cartId: identifier });
+        cart.push({ ...product, qty: 1 });
     }
     updateTotal();
 }
@@ -127,14 +122,14 @@ function updateCartUI() {
                     <p class="font-bold">${item.title}</p>
                     <p class="text-gray-500">৳${item.price} x ${item.qty}</p>
                 </div>
-                <button onclick="removeFromCart(${item.cartId})" class="text-red-500 hover:text-red-700 text-sm"><i class="fa-solid fa-trash"></i></button>
+                <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700 text-sm"><i class="fa-solid fa-trash"></i></button>
             </div>
         `;
     });
 }
 
-function removeFromCart(identifier) {
-    cart = cart.filter(item => item.cartId !== identifier);
+function removeFromCart(id) {
+    cart = cart.filter(item => item.id !== id);
     updateTotal();
 }
 
@@ -181,8 +176,8 @@ async function placeOrder(e) {
         const response = await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
             method: "POST",
             headers: {
-                "apikey": REAL_KEY,
-                "Authorization": `Bearer ${REAL_KEY}`,
+                "apikey": SUPABASE_ANON_KEY,
+                "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify(orderData)

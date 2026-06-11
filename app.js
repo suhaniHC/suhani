@@ -1,5 +1,5 @@
 const SUPABASE_URL = "https://cuyijewingnzhkcyptfb.supabase.co"; 
-const SUPABASE_ANON_KEY = "sb_publishable_Lmoh901ezA0pIc-1H3Qknw_ug0ykWUNscHhBcnI2M3pTNXh0Z0o5WUpvdyI4ZTA5ODhiMi01OTMwLTQ5MWUtOTMwNC1kMDYyZDYzNDNiYTMi";
+const SUPABASE_ANON_KEY = "sb_publishable_Lmoh9O1ezA0pIc-1H3Qknw_ug0yKZgb";
 
 let products = [];
 let cart = [];
